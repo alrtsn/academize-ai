@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academaze AI — Smart Academic & Safety Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --bg-base:       #0D0E14;
+  --bg-surface:    #13151F;
+  --bg-card:       #1A1D2E;
+  --bg-card2:      #1E2133;
+  --bg-hover:      #242740;
+  --border:        rgba(255,255,255,0.07);
+  --border-soft:   rgba(255,255,255,0.04);
+
+  /* Brand violet-indigo */
+  --accent:        #7C5CFC;
+  --accent-light:  #9B82FD;
+  --accent-dim:    rgba(124,92,252,0.15);
+  --accent-glow:   rgba(124,92,252,0.35);
+
+  /* Semantic */
+  --red:    #F04E4E;
+  --red-bg: rgba(240,78,78,0.12);
+  --amber:  #F5A623;
+  --amber-bg: rgba(245,166,35,0.12);
+  --green:  #22C55E;
+  --green-bg: rgba(34,197,94,0.12);
+  --blue:   #3B82F6;
+  --blue-bg: rgba(59,130,246,0.12);
+  --teal:   #14B8A6;
+  --teal-bg:rgba(20,184,166,0.12);
+
+  --text-1: #F0F0FA;
+  --text-2: #9095B0;
+  --text-3: #5A5F7A;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  --shadow: 0 4px 24px rgba(0,0,0,0.35);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-1);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+input, select, textarea, button { font-family: var(--font-body); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 3px; }
+
+/* ===== LAYOUT ===== */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 60px;
+  background: rgba(13,14,20,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 200;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-weight: 700; font-size: 18px;
+  letter-spacing: -0.3px; color: var(--text-1);
+}
+.logo-mark {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, #7C5CFC 0%, #5E3FDE 60%, #9B82FD 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px var(--accent-glow);
+  flex-shrink: 0;
+}
+.logo-mark svg { width: 18px; height: 18px; }
+.logo-sub { font-size: 10px; font-weight: 400; color: var(--text-3); display: block; letter-spacing: 0.3px; }
+
+.nav { display: flex; gap: 2px; }
+.nav-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 16px; border-radius: var(--r-sm);
+  border: none; background: transparent; color: var(--text-2);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all .18s; letter-spacing: 0.1px;
+}
+.nav-btn:hover { background: var(--bg-hover); color: var(--text-1); }
+.nav-btn.active {
+  background: var(--accent-dim);
+  color: var(--accent-light);
+  border: 1px solid rgba(124,92,252,0.25);
+}
+.nav-btn i { font-size: 13px; }
+
+/* ===== ALERT BANNER ===== */
+.alert-banner {
+  display: none; align-items: center; gap: 10px;
+  padding: 10px 24px; font-size: 13px; font-weight: 500;
+  background: linear-gradient(90deg, rgba(240,78,78,0.18), rgba(245,166,35,0.12));
+  border-bottom: 1px solid rgba(240,78,78,0.3);
+  color: #FFAA55;
+}
+.alert-banner i { font-size: 15px; color: var(--red); }
+.alert-banner.show { display: flex; }
+
+/* ===== CONTENT ===== */
+.content { flex: 1; padding: 28px 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+/* ===== PAGES ===== */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== PAGE HEADER ===== */
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+.page-header p { font-size: 13px; color: var(--text-2); }
+
+/* ===== GRID ===== */
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .grid-equal { grid-template-columns: 1fr; } }
+
+/* ===== CARD ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+}
+.card-sm { padding: 14px 16px; }
+.card-title {
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+  color: var(--text-1); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title i { color: var(--accent-light); font-size: 14px; }
+.card-title .badge-ai {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+  background: var(--accent-dim); color: var(--accent-light);
+  border: 1px solid rgba(124,92,252,0.3); letter-spacing: 0.3px;
+}
+
+/* ===== METRIC CARDS ===== */
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  position: relative; overflow: hidden;
+}
+.metric-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.metric-card.mc-purple::before { background: linear-gradient(90deg, var(--accent), var(--accent-light)); }
+.metric-card.mc-red::before { background: linear-gradient(90deg, var(--red), #FF7878); }
+.metric-card.mc-amber::before { background: linear-gradient(90deg, var(--amber), #FFD080); }
+.metric-card.mc-green::before { background: linear-gradient(90deg, var(--green), #6EE7B7); }
+.metric-card.mc-teal::before { background: linear-gradient(90deg, var(--teal), #5EEAD4); }
+.metric-lbl {
+  font-size: 11px; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 5px;
+}
+.metric-val { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+.metric-val.red { color: var(--red); }
+.metric-val.amber { color: var(--amber); }
+.metric-val.green { color: var(--green); }
+.metric-val.purple { color: var(--accent-light); }
+.metric-val.teal { color: var(--teal); }
+.metric-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+  color: var(--text-1); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title i { color: var(--accent-light); }
+
+/* ===== PRIORITY BADGES ===== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.badge-critical { background: var(--red-bg); color: var(--red); border: 1px solid rgba(240,78,78,0.25); }
+.badge-important { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,166,35,0.25); }
+.badge-normal { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+.badge-critical .badge-dot { background: var(--red); }
+.badge-important .badge-dot { background: var(--amber); }
+.badge-normal .badge-dot { background: var(--green); }
+
+/* ===== TASK CARDS ===== */
+.task-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--border);
+  transition: border-color .2s, background .2s;
+}
+.task-item:hover { background: var(--bg-card2); }
+.task-item.critical { border-left-color: var(--red); }
+.task-item.important { border-left-color: var(--amber); }
+.task-item.normal { border-left-color: var(--green); }
+
+.task-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+.task-name { font-weight: 600; font-size: 14px; color: var(--text-1); }
+.task-meta { font-size: 12px; color: var(--text-2); margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+.task-meta-chip { display: flex; align-items: center; gap: 4px; }
+.task-meta-chip i { font-size: 10px; }
+
+.progress-track { background: rgba(255,255,255,0.06); border-radius: 4px; height: 5px; overflow: hidden; margin-bottom: 4px; }
+.progress-bar { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.pb-critical { background: linear-gradient(90deg, var(--red), #FF7878); }
+.pb-important { background: linear-gradient(90deg, var(--amber), #FFD080); }
+.pb-normal { background: linear-gradient(90deg, var(--green), #6EE7B7); }
+.progress-label { font-size: 11px; color: var(--text-3); }
+
+.task-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-hover); color: var(--text-1);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  transition: all .18s; letter-spacing: 0.1px;
+}
+.btn:hover { background: var(--bg-card2); border-color: rgba(255,255,255,0.12); }
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 12px var(--accent-glow);
+}
+.btn-primary:hover { background: #6A4AEA; box-shadow: 0 2px 20px var(--accent-glow); }
+.btn-danger { background: var(--red-bg); color: var(--red); border-color: rgba(240,78,78,0.25); }
+.btn-danger:hover { background: rgba(240,78,78,0.2); }
+.btn-sm { padding: 5px 11px; font-size: 11px; }
+.btn-full { width: 100%; justify-content: center; padding: 10px; font-size: 14px; }
+.btn i { font-size: 12px; }
+
+/* ===== FORM ===== */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 7px; letter-spacing: 0.2px; }
+.form-input {
+  width: 100%; padding: 9px 13px;
+  background: var(--bg-base); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-1); font-size: 13px;
+  transition: border-color .15s;
+}
+.form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.form-input::placeholder { color: var(--text-3); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+textarea.form-input { resize: vertical; min-height: 80px; }
+input[type="range"].form-input {
+  padding: 4px 0; border: none; background: transparent;
+  accent-color: var(--accent); cursor: pointer;
+}
+input[type="range"].form-input:focus { box-shadow: none; }
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%235A5F7A' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; background-size: 16px;
+  padding-right: 32px;
+}
+select.form-input option { background: var(--bg-card); }
+
+/* ===== RANGE DISPLAY ===== */
+.range-wrap { display: flex; align-items: center; gap: 12px; }
+.range-val { min-width: 36px; text-align: right; font-size: 13px; font-weight: 600; color: var(--accent-light); }
+
+/* ===== SCORE METER ===== */
+.score-wrap { display: flex; align-items: center; gap: 20px; padding: 4px 0; }
+.score-ring { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  text-align: center;
+}
+.score-number { font-family: var(--font-display); font-size: 30px; font-weight: 700; line-height: 1; }
+.score-denom { font-size: 11px; color: var(--text-3); }
+.score-info { flex: 1; }
+.score-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+.score-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.score-grade {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  margin-top: 8px;
+}
+.score-grade.good { background: var(--green-bg); color: var(--green); }
+.score-grade.warn { background: var(--amber-bg); color: var(--amber); }
+.score-grade.danger { background: var(--red-bg); color: var(--red); }
+
+/* ===== RISK BARS ===== */
+.risk-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.risk-row:last-child { margin-bottom: 0; }
+.risk-lbl { font-size: 12px; color: var(--text-2); min-width: 130px; }
+.risk-track { flex: 1; height: 7px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.risk-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+.risk-val { font-size: 12px; font-weight: 600; min-width: 50px; text-align: right; }
+
+/* ===== STEPS LIST ===== */
+.steps-list { list-style: none; }
+.step-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+}
+.step-row:last-child { border-bottom: none; }
+.step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-dim); color: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+  border: 1px solid rgba(124,92,252,0.3);
+}
+.step-body { flex: 1; }
+.step-action { font-size: 13px; color: var(--text-1); margin-bottom: 3px; }
+.step-dur { font-size: 11px; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+
+/* ===== WHATIF CHART ===== */
+.whatif-bars { display: flex; align-items: flex-end; gap: 10px; height: 100px; }
+.wbar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.wbar { width: 100%; border-radius: 4px 4px 0 0; transition: height .5s ease; min-height: 4px; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px; }
+.wbar-num { font-size: 11px; font-weight: 700; color: #fff; }
+.wbar-lbl { font-size: 11px; color: var(--text-3); }
+
+/* ===== BREAKDOWN OUTPUT ===== */
+.ai-output {
+  background: var(--bg-base); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 14px 16px; margin-top: 12px;
+}
+.loading-ai { color: var(--text-2); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.spinner {
+  width: 16px; height: 16px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== MAP ===== */
+.map-wrap {
+  background: #0A0C14; border: 1px solid var(--border);
+  border-radius: var(--r-md); overflow: hidden; position: relative;
+}
+.map-node {
+  position: absolute; transform: translate(-50%, -50%);
+  border-radius: 50%; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: #fff;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+.map-node:hover { transform: translate(-50%, -50%) scale(1.3); }
+.map-node-label {
+  position: absolute; font-size: 10px; color: var(--text-2);
+  white-space: nowrap; pointer-events: none;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.map-legend { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ===== STUDY SPOTS ===== */
+.spot-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+}
+.spot-row:last-child { border-bottom: none; }
+.spot-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.spot-name { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 2px; }
+.spot-meta { font-size: 11px; color: var(--text-3); }
+.spot-rating { font-size: 11px; color: var(--amber); }
+
+/* ===== ETA ===== */
+.eta-box {
+  background: var(--bg-base); border-radius: var(--r-md);
+  padding: 16px; margin-bottom: 14px;
+  border: 1px solid var(--border); text-align: center;
+}
+.eta-time {
+  font-family: var(--font-display); font-size: 40px; font-weight: 700;
+  letter-spacing: -1px; margin-bottom: 4px;
+}
+.eta-label { font-size: 12px; color: var(--text-2); }
+
+/* ===== ROUTE INFO ===== */
+.route-segment {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; font-size: 12px;
+}
+.route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.route-name { flex: 1; color: var(--text-1); }
+.route-score { font-size: 11px; font-weight: 600; }
+
+/* ===== EMPTY STATE ===== */
+.empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--text-3); font-size: 13px;
+}
+.empty i { font-size: 36px; display: block; margin-bottom: 10px; opacity: .4; }
+.empty-title { font-size: 14px; font-weight: 500; color: var(--text-2); margin-bottom: 4px; }
+
+/* ===== TABS ===== */
+.tab-row { display: flex; gap: 2px; margin-bottom: 16px; }
+.tab-btn {
+  padding: 7px 16px; border-radius: var(--r-sm);
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all .15s;
+}
+.tab-btn:hover { color: var(--text-1); }
+.tab-btn.active { background: var(--accent-dim); color: var(--accent-light); border-color: rgba(124,92,252,0.3); }
+
+/* ===== DIVIDER ===== */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ===== TOOLTIP ===== */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip-text {
+  visibility: hidden; opacity: 0;
+  background: var(--bg-card2); color: var(--text-1);
+  font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; pointer-events: none;
+  border: 1px solid var(--border); transition: opacity .15s;
+}
+.tooltip-wrap:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+/* ===== SAVED TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--bg-card2); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 12px 18px;
+  font-size: 13px; color: var(--green);
+  display: flex; align-items: center; gap: 8px;
+  transform: translateY(80px); opacity: 0;
+  transition: all .3s ease; z-index: 999;
+  box-shadow: var(--shadow);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ===== AUTH (LOGIN) ===== */
+.input-wrap { position: relative; }
+.pw-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text-3); cursor: pointer;
+  font-size: 13px; padding: 4px; display: flex; align-items: center;
+}
+.pw-toggle:hover { color: var(--text-2); }
+.auth-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 12px; }
+.auth-check { display: flex; align-items: center; gap: 6px; color: var(--text-2); cursor: pointer; }
+.auth-check input { accent-color: var(--accent); cursor: pointer; }
+.auth-link { color: var(--accent-light); text-decoration: none; font-weight: 500; }
+.auth-link:hover { text-decoration: underline; }
+.auth-switch { text-align: center; margin-top: 18px; font-size: 12px; color: var(--text-2); }
+.form-error {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--red);
+  background: var(--red-bg); border: 1px solid rgba(240,78,78,0.25);
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 14px;
+}
+
+/* ===== ONBOARDING OVERLAY ===== */
+.onboarding-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--bg-base);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.onboarding-overlay.hidden { display: none; }
+.onboarding-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 40px 36px;
+  width: 100%; max-width: 460px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}
+.onboarding-logo {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 28px;
+}
+.onboarding-logo .logo-mark { width: 42px; height: 42px; border-radius: 13px; }
+.onboarding-logo .logo-mark svg { width: 22px; height: 22px; }
+.onboarding-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  color: var(--text-1); margin-bottom: 6px;
+}
+.onboarding-sub { font-size: 13px; color: var(--text-2); margin-bottom: 28px; line-height: 1.6; }
+.onboarding-step { display: none; }
+.onboarding-step.active { display: block; }
+.step-indicator {
+  display: flex; gap: 6px; margin-bottom: 24px;
+}
+.step-dot {
+  height: 4px; border-radius: 2px; flex: 1;
+  background: var(--bg-hover); transition: background .3s;
+}
+.step-dot.done { background: var(--accent); }
+.onboarding-label {
+  font-size: 11px; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px;
+}
+.avatar-grid {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.avatar-opt {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+  border: 2px solid var(--border);
+  transition: border-color .15s, transform .15s;
+}
+.avatar-opt:hover { transform: scale(1.08); }
+.avatar-opt.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.feature-pills {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+}
+.feature-pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: 10px;
+  background: var(--bg-base); border: 1px solid var(--border);
+  font-size: 12px; color: var(--text-2);
+}
+.feature-pill i { color: var(--accent-light); font-size: 12px; }
+
+/* ===== USER CHIP in topbar ===== */
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 6px;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  cursor: pointer; transition: background .15s;
+}
+.user-chip:hover { background: var(--bg-hover); }
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-name-chip { font-size: 12px; font-weight: 500; color: var(--text-1); }
+
+/* ===== GREETING BANNER ===== */
+.greeting-banner {
+  background: linear-gradient(135deg, rgba(124,92,252,0.12), rgba(124,92,252,0.04));
+  border: 1px solid rgba(124,92,252,0.2);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.greeting-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.greeting-text h2 {
+  font-family: var(--font-display); font-size: 17px; font-weight: 700;
+  color: var(--text-1); margin-bottom: 3px;
+}
+.greeting-text p { font-size: 12px; color: var(--text-2); }
+.greeting-date { margin-left: auto; text-align: right; font-size: 11px; color: var(--text-3); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN OVERLAY ===== -->
+<div class="onboarding-overlay" id="login-page">
+  <div class="onboarding-box">
+
+    <div class="onboarding-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3C8 3 5 6 5 10c0 2.5 1.2 4.7 3 6.1V20h8v-3.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" fill="rgba(255,255,255,0.9)"/>
+          <path d="M9 20h6M10 23h4" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="10" r="2.5" fill="rgba(124,92,252,0.8)"/>
+          <path d="M8 10h1M15 10h1M12 7v1M12 13v1" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700">Academaze AI</div>
+        <div style="font-size:11px;color:var(--text-3)">Smart Academic &amp; Safety Companion</div>
+      </div>
+    </div>
+
+    <div class="onboarding-title">Masuk ke akun 👋</div>
+    <div class="onboarding-sub">Kelola tugas kuliah dan rencanakan jalan pulang teraman, semua dalam satu tempat.</div>
+
+    <div id="login-error" class="form-error" style="display:none">
+      <i class="fa-solid fa-circle-exclamation"></i> <span id="login-error-msg">Email dan password wajib diisi.</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email / NIM</label>
+      <input type="text" class="form-input" id="login-email" placeholder="e.g. rafi.pratama@students.undip.ac.id" autocomplete="off" value="rafi.pratama@students.undip.ac.id">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <input type="password" class="form-input" id="login-password" placeholder="Masukkan password" autocomplete="off" value="academaze123" style="padding-right:38px">
+        <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="Tampilkan password">
+          <i class="fa-solid fa-eye" id="pw-icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-options">
+      <label class="auth-check"><input type="checkbox" id="login-remember" checked> Ingat saya</label>
+      <a href="#" class="auth-link" onclick="showToast('Fitur reset password belum tersedia di prototipe ini'); return false;">Lupa password?</a>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="doLogin()" style="font-size:15px;padding:12px">
+      <i class="fa-solid fa-right-to-bracket"></i> Masuk
+    </button>
+
+    <div class="auth-switch">
+      Belum punya akun? <a href="#" class="auth-link" onclick="showRegister(); return false;">Daftar di sini</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== ONBOARDING / REGISTER OVERLAY ===== -->
+<div class="onboarding-overlay hidden" id="onboarding">
+  <div class="onboarding-box">
+
+    <div class="onboarding-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3C8 3 5 6 5 10c0 2.5 1.2 4.7 3 6.1V20h8v-3.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" fill="rgba(255,255,255,0.9)"/>
+          <path d="M9 20h6M10 23h4" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="10" r="2.5" fill="rgba(124,92,252,0.8)"/>
+          <path d="M8 10h1M15 10h1M12 7v1M12 13v1" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700">Academaze AI</div>
+        <div style="font-size:11px;color:var(--text-3)">Smart Academic &amp; Safety Companion</div>
+      </div>
+    </div>
+
+    <div class="step-indicator">
+      <div class="step-dot done" id="sd1"></div>
+      <div class="step-dot" id="sd2"></div>
+    </div>
+
+    <!-- Step 1: Selamat datang + data diri -->
+    <div class="onboarding-step active" id="ob-step1">
+      <div class="onboarding-title">Buat akun baru 👋</div>
+      <div class="onboarding-sub">Academaze AI bantu kamu kelola tugas kuliah dan pulang dengan aman. Yuk mulai dengan kenalan dulu.</div>
+      <div class="form-group">
+        <label class="form-label">Nama kamu <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-input" id="ob-name" placeholder="e.g. Rafi, Amelia, Dhika..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">NIM</label>
+        <input type="text" class="form-input" id="ob-nim" placeholder="e.g. 24060124140190" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Program studi</label>
+        <input type="text" class="form-input" id="ob-prodi" placeholder="e.g. S1 Informatika" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="onboarding-label" style="margin-bottom:10px">Pilih avatar</label>
+        <div class="avatar-grid" id="avatar-grid" style="margin-bottom:0">
+          <div class="avatar-opt selected" data-emoji="🧑‍💻" onclick="selectAvatar(this)">🧑‍💻</div>
+          <div class="avatar-opt" data-emoji="👩‍💻" onclick="selectAvatar(this)">👩‍💻</div>
+          <div class="avatar-opt" data-emoji="🧑‍🎓" onclick="selectAvatar(this)">🧑‍🎓</div>
+          <div class="avatar-opt" data-emoji="👩‍🎓" onclick="selectAvatar(this)">👩‍🎓</div>
+          <div class="avatar-opt" data-emoji="🦊" onclick="selectAvatar(this)">🦊</div>
+          <div class="avatar-opt" data-emoji="🐼" onclick="selectAvatar(this)">🐼</div>
+          <div class="avatar-opt" data-emoji="🐱" onclick="selectAvatar(this)">🐱</div>
+          <div class="avatar-opt" data-emoji="🌙" onclick="selectAvatar(this)">🌙</div>
+        </div>
+      </div>
+      <div style="margin-top:24px">
+        <button class="btn btn-primary btn-full" onclick="obNext(1)">
+          Lanjut <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+      <div class="auth-switch">
+        Sudah punya akun? <a href="#" class="auth-link" onclick="showLogin(); return false;">Masuk di sini</a>
+      </div>
+    </div>
+
+    <!-- Step 2: Fitur overview + masuk -->
+    <div class="onboarding-step" id="ob-step2">
+      <div class="onboarding-title">Siap dipakai, <span id="ob-namedisplay"></span> 🚀</div>
+      <div class="onboarding-sub">Ini yang bisa Academaze AI bantu buat kamu setiap hari:</div>
+      <div class="feature-pills">
+        <div class="feature-pill"><i class="fa-solid fa-list-check"></i> Tracking & prioritas tugas otomatis</div>
+        <div class="feature-pill"><i class="fa-solid fa-heart-pulse"></i> Academic Health Score real-time</div>
+        <div class="feature-pill"><i class="fa-solid fa-brain"></i> Deteksi risiko burnout & prokrastinasi</div>
+        <div class="feature-pill"><i class="fa-solid fa-sparkles"></i> AI step-by-step task breakdown</div>
+        <div class="feature-pill"><i class="fa-solid fa-route"></i> Rute pulang malam teraman</div>
+        <div class="feature-pill"><i class="fa-solid fa-rotate"></i> What-If simulation penundaan tugas</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn" onclick="obBack(2)" style="flex:1">
+          <i class="fa-solid fa-arrow-left"></i> Kembali
+        </button>
+        <button class="btn btn-primary" onclick="finishOnboarding()" style="flex:2;font-size:15px;padding:12px">
+          <i class="fa-solid fa-rocket"></i> Mulai pakai Academaze AI
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3C8 3 5 6 5 10c0 2.5 1.2 4.7 3 6.1V20h8v-3.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" fill="rgba(255,255,255,0.9)"/>
+        <path d="M9 20h6M10 23h4" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="12" cy="10" r="2.5" fill="rgba(124,92,252,0.8)"/>
+        <path d="M8 10h1M15 10h1M12 7v1M12 13v1" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      Academaze AI
+      <span class="logo-sub">Smart Academic &amp; Safety Companion</span>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')"><i class="fa-solid fa-table-columns"></i> Dashboard</button>
+    <button class="nav-btn" onclick="showPage('input')"><i class="fa-solid fa-plus"></i> Tugas baru</button>
+    <button class="nav-btn" onclick="showPage('safety')"><i class="fa-solid fa-map-location-dot"></i> Rute aman</button>
+  </nav>
+  <div class="user-chip" onclick="showPage('profile')" title="Profil kamu">
+    <div class="user-avatar" id="topbar-avatar">🧑‍💻</div>
+    <span class="user-name-chip" id="topbar-name">User</span>
+  </div>
+</header>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner" id="alert-bar">
+  <i class="fa-solid fa-triangle-exclamation"></i>
+  <span id="alert-msg">Estimasi selesai di atas pukul 19.00 — Night Route Safety diaktifkan!</span>
+  <button class="btn btn-sm" style="margin-left:auto" onclick="showPage('safety')"><i class="fa-solid fa-route"></i> Lihat rute aman</button>
+</div>
+
+<main class="content">
+
+<!-- ===================== PAGE: DASHBOARD ===================== -->
+<div class="page active" id="page-dashboard">
+
+  <!-- Greeting banner -->
+  <div class="greeting-banner" id="greeting-banner">
+    <div class="greeting-avatar" id="greeting-avatar">🧑‍💻</div>
+    <div class="greeting-text">
+      <h2 id="greeting-text">Halo!</h2>
+      <p id="greeting-sub">Semangat belajar hari ini 💪</p>
+    </div>
+    <div class="greeting-date" id="greeting-date"></div>
+  </div>
+
+  <div class="page-header">
+    <h1><i class="fa-solid fa-table-columns" style="color:var(--accent-light);margin-right:8px"></i>Dashboard Akademik</h1>
+    <p>Pantau semua tugas, kesehatan akademik, dan risiko burnout kamu.</p>
+  </div>
+
+  <!-- Metric cards -->
+  <div class="grid-3" id="metric-cards-wrap">
+    <div class="metric-card mc-purple">
+      <div class="metric-lbl"><i class="fa-solid fa-layer-group"></i> Total tugas</div>
+      <div class="metric-val purple" id="m-total">0</div>
+      <div class="metric-sub" id="m-total-sub">Tidak ada tugas aktif</div>
+    </div>
+    <div class="metric-card mc-red">
+      <div class="metric-lbl"><i class="fa-solid fa-circle-exclamation"></i> Critical</div>
+      <div class="metric-val red" id="m-critical">0</div>
+      <div class="metric-sub">Perlu segera dikerjakan</div>
+    </div>
+    <div class="metric-card mc-amber">
+      <div class="metric-lbl"><i class="fa-solid fa-clock"></i> Sisa jam kerja</div>
+      <div class="metric-val amber" id="m-hours">0h</div>
+      <div class="metric-sub">Estimasi belum selesai</div>
+    </div>
+    <div class="metric-card mc-green">
+      <div class="metric-lbl"><i class="fa-solid fa-chart-line"></i> Rata-rata progres</div>
+      <div class="metric-val green" id="m-avgprog">—</div>
+      <div class="metric-sub">Dari semua tugas</div>
+    </div>
+    <div class="metric-card mc-teal">
+      <div class="metric-lbl"><i class="fa-solid fa-moon"></i> Estimasi selesai</div>
+      <div class="metric-val teal" id="m-eta">—</div>
+      <div class="metric-sub" id="m-eta-sub">Berdasarkan tugas aktif</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Task list -->
+    <div>
+      <div class="section-title"><i class="fa-solid fa-list-check"></i> Daftar Tugas</div>
+      <div id="task-list">
+        <div class="empty">
+          <i class="fa-solid fa-inbox"></i>
+          <div class="empty-title">Belum ada tugas</div>
+          Tambah tugas baru untuk mulai tracking akademikmu.
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div>
+      <!-- Score + Risk -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><i class="fa-solid fa-heart-pulse"></i> Academic Health Score</div>
+        <div class="score-wrap" id="score-wrap">
+          <div class="score-ring">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="44" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+              <circle id="score-arc" cx="55" cy="55" r="44" fill="none" stroke="var(--accent)" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"
+                style="transition:stroke-dashoffset .9s ease, stroke .5s"/>
+            </svg>
+            <div class="score-center">
+              <div class="score-number" id="score-num" style="color:var(--accent-light)">—</div>
+              <div class="score-denom">/ 100</div>
+            </div>
+          </div>
+          <div class="score-info">
+            <div class="score-title" id="score-title">Belum ada data</div>
+            <div class="score-desc" id="score-desc">Tambahkan tugas untuk menghitung Academic Health Score kamu.</div>
+            <div class="score-grade good" id="score-grade" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><i class="fa-solid fa-brain"></i> Risk Assessment</div>
+        <div id="risk-bars">
+          <div style="font-size:13px;color:var(--text-3)">Belum ada data tugas.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Breakdown AI + What-If -->
+  <div class="grid-equal" style="margin-top:16px">
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-sparkles"></i> Task Breakdown AI
+        <span class="badge-ai">AI</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:12px">Pilih tugas → AI buatkan step-by-step plan otomatis.</div>
+      <select id="breakdown-select" class="form-input" style="margin-bottom:10px">
+        <option value="">— Pilih tugas —</option>
+      </select>
+      <button class="btn btn-primary btn-full" onclick="generateBreakdown()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate breakdown
+      </button>
+      <div id="breakdown-result"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-rotate"></i> What-If Simulation</div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:14px">Prediksi penurunan Academic Health Score jika tugas ditunda.</div>
+      <div id="whatif-wrap">
+        <div style="font-size:13px;color:var(--text-3)">Belum ada data tugas.</div>
+      </div>
+      <div id="whatif-desc" style="font-size:12px;color:var(--text-2);margin-top:10px;line-height:1.5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: INPUT ===================== -->
+<div class="page" id="page-input">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-plus" style="color:var(--accent-light);margin-right:8px"></i>Tambah Tugas Baru</h1>
+    <p>Masukkan detail tugas untuk mulai dianalisis oleh Academaze AI.</p>
+  </div>
+  <div class="grid-equal">
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-file-pen"></i> Detail Tugas</div>
+      <div class="form-group">
+        <label class="form-label">Nama tugas <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-input" id="f-name" placeholder="e.g. Laporan Praktikum Jaringan Komputer">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mata kuliah <span style="color:var(--red)">*</span></label>
+        <input type="text" class="form-input" id="f-matkul" placeholder="e.g. Jaringan Komputer (Jarkom)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Deadline <span style="color:var(--red)">*</span></label>
+          <input type="datetime-local" class="form-input" id="f-deadline">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estimasi waktu (jam) <span style="color:var(--red)">*</span></label>
+          <input type="number" class="form-input" id="f-duration" placeholder="3" min="0.5" max="999" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Progres saat ini: <span id="prog-display" style="color:var(--accent-light);font-weight:600">0%</span></label>
+        <div class="range-wrap">
+          <input type="range" class="form-input" id="f-progress" min="0" max="100" value="0" step="5"
+            oninput="document.getElementById('prog-display').textContent=this.value+'%'">
+          <span class="range-val" id="prog-display2">0%</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi singkat <span style="color:var(--text-3)">(opsional — bantu AI buat breakdown lebih akurat)</span></label>
+        <textarea class="form-input" id="f-desc" rows="3" placeholder="Jelaskan isi/tujuan tugas ini..."></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addTask()">
+        <i class="fa-solid fa-plus"></i> Tambah tugas
+      </button>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-circle-info"></i> Sistem Prioritas</div>
+        <div style="font-size:12px;color:var(--text-2);line-height:1.8">
+          Academaze AI mengklasifikasikan tugas berdasarkan <strong style="color:var(--text-1)">Rule-Based Expert System</strong>:
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+            <span class="badge badge-critical"><span class="badge-dot"></span> Critical</span>
+            <span style="color:var(--text-2)">Deadline &lt; 24 jam DAN progres &lt; 30%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+            <span class="badge badge-important"><span class="badge-dot"></span> Important</span>
+            <span style="color:var(--text-2)">Deadline &lt; 48 jam ATAU progres &lt; 50%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+            <span class="badge badge-normal"><span class="badge-dot"></span> Normal</span>
+            <span style="color:var(--text-2)">Deadline masih jauh, progres aman</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="font-size:12px;color:var(--text-3)"><i class="fa-solid fa-clock" style="margin-right:5px"></i>Jika estimasi selesai melewati pukul <strong style="color:var(--amber)">19.00</strong>, Night Route Safety otomatis aktif.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: SAFETY ===================== -->
+<div class="page" id="page-safety">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-map-location-dot" style="color:var(--accent-light);margin-right:8px"></i>Night Route Safety</h1>
+    <p>Masukkan jam rencana pulang dan lokasi, sistem akan mencarikan jalur teraman untukmu.</p>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <!-- Route Input Form -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><i class="fa-solid fa-sliders"></i> Pengaturan Rute</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Titik awal (kampus)</label>
+            <input type="text" class="form-input" id="f-origin" list="origin-suggestions" placeholder="e.g. Lab Informatika FSM" value="Lab Informatika FSM" autocomplete="off">
+            <datalist id="origin-suggestions">
+              <option value="Lab Informatika FSM">
+              <option value="Perpustakaan Undip">
+              <option value="Gedung FSM Lt.3">
+              <option value="Student Center">
+              <option value="Dekanat Undip">
+              <option value="Masjid Kampus Undip">
+              <option value="Gedung Kuliah Bersama">
+              <option value="Rektorat Undip">
+            </datalist>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Tujuan (kos/rumah)</label>
+            <input type="text" class="form-input" id="f-dest" list="dest-suggestions" placeholder="e.g. Kos Tembalang Selatan" value="Kos Tembalang Selatan" autocomplete="off">
+            <datalist id="dest-suggestions">
+              <option value="Kos Tembalang Selatan">
+              <option value="Banjarsari">
+              <option value="Ngesrep">
+              <option value="Pedalangan">
+              <option value="Bulusan">
+              <option value="Kos Sumurboto">
+              <option value="Kos Jangli">
+              <option value="Meteseh">
+            </datalist>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin:-4px 0 12px;display:flex;align-items:center;gap:6px">
+          <i class="fa-solid fa-circle-info"></i> Ketik nama lokasi sendiri jika tidak ada di daftar saran.
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label"><i class="fa-solid fa-clock" style="margin-right:5px;color:var(--amber)"></i>Rencana jam pulang</label>
+          <input type="time" class="form-input" id="f-depart-time" value="19:00">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="calcRoute()">
+            <i class="fa-solid fa-route"></i> Hitung rute aman
+          </button>
+          <button class="btn" onclick="drawAllEdges()">
+            <i class="fa-solid fa-map"></i> Tampilkan semua jalur
+          </button>
+        </div>
+      </div>
+
+      <!-- ETA Box -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><i class="fa-solid fa-clock"></i> Estimasi Jam Selesai Belajar</div>
+        <div class="eta-box">
+          <div class="eta-time" id="eta-big">—:—</div>
+          <div class="eta-label" id="eta-big-label">Tambahkan tugas untuk estimasi</div>
+        </div>
+      </div>
+
+      <!-- Route Info -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><i class="fa-solid fa-diamond-turn-right"></i> Detail Rute Rekomendasi</div>
+        <div id="route-detail">
+          <div style="font-size:13px;color:var(--text-3)">Klik "Hitung rute aman" untuk mendapatkan rekomendasi rute berdasarkan skor keamanan tertinggi.</div>
+        </div>
+      </div>
+
+      <!-- Safe Study Spots -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-mug-hot"></i> Safe Study Spots</div>
+        <div>
+          <div class="spot-row">
+            <div class="spot-icon" style="background:var(--amber-bg);color:var(--amber)"><i class="fa-solid fa-coffee"></i></div>
+            <div class="spot-body" style="flex:1">
+              <div class="spot-name">Kafe 24 Jam Tembalang</div>
+              <div class="spot-meta"><span class="spot-rating">★ 4.7</span> · 0.3 km · Ramai, terang, WiFi kencang</div>
+            </div>
+            <span class="badge badge-normal" style="font-size:10px">Buka 24j</span>
+          </div>
+          <div class="spot-row">
+            <div class="spot-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="fa-solid fa-book"></i></div>
+            <div class="spot-body" style="flex:1">
+              <div class="spot-name">Perpustakaan Undip</div>
+              <div class="spot-meta"><span class="spot-rating">★ 4.9</span> · 0.1 km · Dalam kampus, sangat aman</div>
+            </div>
+            <span class="badge badge-normal" style="font-size:10px">s.d 22.00</span>
+          </div>
+          <div class="spot-row">
+            <div class="spot-icon" style="background:var(--teal-bg);color:var(--teal)"><i class="fa-solid fa-laptop"></i></div>
+            <div class="spot-body" style="flex:1">
+              <div class="spot-name">Co-working Space Ngesrep</div>
+              <div class="spot-meta"><span class="spot-rating">★ 4.5</span> · 0.8 km · CCTV, parkir aman</div>
+            </div>
+            <span class="badge badge-normal" style="font-size:10px">Buka 24j</span>
+          </div>
+          <div class="spot-row">
+            <div class="spot-icon" style="background:var(--red-bg);color:var(--red)"><i class="fa-solid fa-burger"></i></div>
+            <div class="spot-body" style="flex:1">
+              <div class="spot-name">Warung Makan Depan Gerbang</div>
+              <div class="spot-meta"><span class="spot-rating">★ 4.2</span> · 0.05 km · Ramai pedagang malam</div>
+            </div>
+            <span class="badge badge-important" style="font-size:10px">s.d 01.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-map"></i> Peta Rute — Simulasi Area Undip Tembalang</div>
+        <div class="map-wrap" id="map-wrap" style="height:380px">
+          <svg id="map-bg" width="100%" height="380" viewBox="0 0 480 380" style="position:absolute;top:0;left:0">
+            <!-- Road grid -->
+            <line x1="0" y1="90" x2="480" y2="90" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+            <line x1="0" y1="210" x2="480" y2="210" stroke="rgba(255,255,255,0.04)" stroke-width="8"/>
+            <line x1="0" y1="320" x2="480" y2="320" stroke="rgba(255,255,255,0.04)" stroke-width="6"/>
+            <line x1="90" y1="0" x2="90" y2="380" stroke="rgba(255,255,255,0.04)" stroke-width="6"/>
+            <line x1="240" y1="0" x2="240" y2="380" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+            <line x1="380" y1="0" x2="380" y2="380" stroke="rgba(255,255,255,0.04)" stroke-width="6"/>
+            <!-- Campus zone -->
+            <rect x="150" y="15" width="180" height="160" rx="10" fill="rgba(124,92,252,0.06)" stroke="rgba(124,92,252,0.25)" stroke-width="1" stroke-dasharray="5 3"/>
+            <text x="240" y="36" font-size="11" fill="rgba(155,130,253,0.7)" text-anchor="middle" font-family="Inter,sans-serif">Kawasan Kampus Undip</text>
+            <!-- Kos zone -->
+            <rect x="15" y="250" width="130" height="110" rx="8" fill="rgba(59,130,246,0.05)" stroke="rgba(59,130,246,0.2)" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="80" y="310" font-size="10" fill="rgba(59,130,246,0.6)" text-anchor="middle" font-family="Inter,sans-serif">Area Kos</text>
+            <!-- Road labels -->
+            <text x="240" y="85" font-size="9" fill="rgba(255,255,255,0.15)" text-anchor="middle" font-family="Inter,sans-serif">Jl. Prof. Soedarto SH</text>
+            <text x="120" y="207" font-size="9" fill="rgba(255,255,255,0.12)" text-anchor="middle" font-family="Inter,sans-serif">Jl. Tembalang</text>
+            <text x="380" y="207" font-size="9" fill="rgba(255,255,255,0.12)" text-anchor="middle" font-family="Inter,sans-serif">Jl. Banjarsari</text>
+          </svg>
+          <svg id="route-svg" width="100%" height="380" viewBox="0 0 480 380" style="position:absolute;top:0;left:0;pointer-events:none">
+            <defs>
+              <marker id="marr-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round"/>
+              </marker>
+              <marker id="marr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#F04E4E" stroke-width="2" stroke-linecap="round"/>
+              </marker>
+              <marker id="marr-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linecap="round"/>
+              </marker>
+            </defs>
+          </svg>
+          <div id="map-nodes-layer" style="position:absolute;top:0;left:0;width:100%;height:100%"></div>
+        </div>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Rute aman (skor tinggi)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Jalur rawan (hindari)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Perlu waspada</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Titik awal</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Tujuan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== PAGE: PROFILE ===================== -->
+<div class="page" id="page-profile">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-user-circle" style="color:var(--accent-light);margin-right:8px"></i>Profil Saya</h1>
+    <p>Kelola data akun dan preferensi kamu.</p>
+  </div>
+  <div class="grid-equal">
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-id-card"></i> Informasi Akun</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div style="font-size:48px;line-height:1" id="profile-avatar-big">🧑‍💻</div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:700" id="profile-name-big">—</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:2px" id="profile-nim-big">—</div>
+          <div style="font-size:12px;color:var(--accent-light);margin-top:2px" id="profile-prodi-big">—</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama</label>
+        <input type="text" class="form-input" id="p-name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">NIM</label>
+        <input type="text" class="form-input" id="p-nim">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Program studi</label>
+        <input type="text" class="form-input" id="p-prodi" placeholder="e.g. S1 Informatika" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Avatar</label>
+        <div class="avatar-grid" id="profile-avatar-grid">
+          <div class="avatar-opt" data-emoji="🧑‍💻" onclick="selectProfileAvatar(this)">🧑‍💻</div>
+          <div class="avatar-opt" data-emoji="👩‍💻" onclick="selectProfileAvatar(this)">👩‍💻</div>
+          <div class="avatar-opt" data-emoji="🧑‍🎓" onclick="selectProfileAvatar(this)">🧑‍🎓</div>
+          <div class="avatar-opt" data-emoji="👩‍🎓" onclick="selectProfileAvatar(this)">👩‍🎓</div>
+          <div class="avatar-opt" data-emoji="🦊" onclick="selectProfileAvatar(this)">🦊</div>
+          <div class="avatar-opt" data-emoji="🐼" onclick="selectProfileAvatar(this)">🐼</div>
+          <div class="avatar-opt" data-emoji="🐱" onclick="selectProfileAvatar(this)">🐱</div>
+          <div class="avatar-opt" data-emoji="🌙" onclick="selectProfileAvatar(this)">🌙</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveProfile()">
+        <i class="fa-solid fa-floppy-disk"></i> Simpan perubahan
+      </button>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Statistik Saya</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <span style="color:var(--text-2)">Total tugas ditambahkan</span>
+            <span style="font-weight:600;color:var(--text-1)" id="stat-total">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <span style="color:var(--text-2)">Tugas selesai (100%)</span>
+            <span style="font-weight:600;color:var(--green)" id="stat-done">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <span style="color:var(--text-2)">Academic Health Score saat ini</span>
+            <span style="font-weight:600;color:var(--accent-light)" id="stat-score">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <span style="color:var(--text-2)">Rata-rata progres tugas</span>
+            <span style="font-weight:600;color:var(--teal)" id="stat-avg">—</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-right-from-bracket" style="color:var(--red)"></i> Sesi</div>
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:14px">Keluar dari akun akan menghapus semua data di sesi ini.</div>
+        <button class="btn btn-danger btn-full" onclick="logOut()">
+          <i class="fa-solid fa-right-from-bracket"></i> Keluar &amp; reset sesi
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i> <span id="toast-msg">Tersimpan!</span></div>
+
+<script>
+// ===== DATA & STATE =====
+let tasks = [];
+let taskIdCtr = 0;
+
+// ===== USER PROFILE =====
+let user = { name: '', nim: '', prodi: '', avatar: '🧑‍💻' };
+let selectedAvatar = '🧑‍💻';
+
+// ===== LOGIN =====
+function togglePassword() {
+  const inp = document.getElementById('login-password');
+  const icon = document.getElementById('pw-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.className = 'fa-solid fa-eye-slash';
+  } else {
+    inp.type = 'password';
+    icon.className = 'fa-solid fa-eye';
+  }
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value.trim();
+  const errBox = document.getElementById('login-error');
+  const errMsg = document.getElementById('login-error-msg');
+
+  if (!email || !pass) {
+    errMsg.textContent = 'Email/NIM dan password wajib diisi.';
+    errBox.style.display = 'flex';
+    return;
+  }
+  errBox.style.display = 'none';
+
+  // Demo login: any filled credentials are accepted and pre-filled with sample profile + data
+  user = { name: 'Rafi Pratama', nim: '24060122140087', prodi: 'S1 Informatika', avatar: '🧑\u200d💻' };
+  selectedAvatar = user.avatar;
+
+  document.getElementById('login-page').classList.add('hidden');
+  document.getElementById('main-app').style.display = '';
+
+  loadSeedData();
+  applyUserToUI();
+  renderAll();
+  showToast(`Selamat datang kembali, ${user.name.split(' ')[0]}! 👋`);
+}
+
+// ===== REGISTER / ONBOARDING =====
+function showRegister() {
+  document.getElementById('login-page').classList.add('hidden');
+  document.getElementById('onboarding').classList.remove('hidden');
+}
+
+function showLogin() {
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('login-page').classList.remove('hidden');
+}
+
+function obNext(step) {
+  if (step === 1) {
+    const name = document.getElementById('ob-name').value.trim();
+    if (!name) { document.getElementById('ob-name').focus(); showToast('Nama wajib diisi!', true); return; }
+    user.name  = name;
+    user.nim   = document.getElementById('ob-nim').value.trim();
+    user.prodi = document.getElementById('ob-prodi').value.trim() || 'Belum diisi';
+    user.avatar = selectedAvatar;
+    document.getElementById('ob-namedisplay').textContent = name.split(' ')[0];
+    document.getElementById('ob-step1').classList.remove('active');
+    document.getElementById('ob-step2').classList.add('active');
+    document.getElementById('sd2').classList.add('done');
+  }
+}
+
+function obBack(step) {
+  if (step === 2) {
+    document.getElementById('ob-step2').classList.remove('active');
+    document.getElementById('ob-step1').classList.add('active');
+    document.getElementById('sd2').classList.remove('done');
+  }
+}
+
+function selectAvatar(el) {
+  document.querySelectorAll('#avatar-grid .avatar-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAvatar = el.dataset.emoji;
+}
+
+function selectProfileAvatar(el) {
+  document.querySelectorAll('#profile-avatar-grid .avatar-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAvatar = el.dataset.emoji;
+}
+
+function finishOnboarding() {
+  user.avatar = selectedAvatar;
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('main-app').style.display = '';
+  loadSeedData();
+  applyUserToUI();
+  renderAll();
+  showToast(`Akun berhasil dibuat. Selamat datang, ${user.name.split(' ')[0]}! 🚀`);
+}
+
+function applyUserToUI() {
+  const firstName = user.name.split(' ')[0];
+  // topbar
+  document.getElementById('topbar-avatar').textContent = user.avatar;
+  document.getElementById('topbar-name').textContent = firstName;
+  // greeting
+  document.getElementById('greeting-avatar').textContent = user.avatar;
+  const hour = new Date().getHours();
+  const greet = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
+  document.getElementById('greeting-text').textContent = `${greet}, ${firstName}! 👋`;
+  document.getElementById('greeting-sub').textContent = user.nim
+    ? `${user.prodi} · ${user.nim}`
+    : user.prodi;
+  const now = new Date();
+  const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  document.getElementById('greeting-date').innerHTML =
+    `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}<br>
+     <span style="color:var(--accent-light);font-weight:600">${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} WIB</span>`;
+}
+
+function saveProfile() {
+  const newName = document.getElementById('p-name').value.trim();
+  if (!newName) { showToast('Nama tidak boleh kosong!', true); return; }
+  user.name  = newName;
+  user.nim   = document.getElementById('p-nim').value.trim();
+  user.prodi = document.getElementById('p-prodi').value.trim() || 'Belum diisi';
+  user.avatar = selectedAvatar;
+  applyUserToUI();
+  updateProfilePage();
+  showToast('Profil berhasil disimpan!');
+}
+
+function updateProfilePage() {
+  document.getElementById('profile-avatar-big').textContent = user.avatar;
+  document.getElementById('profile-name-big').textContent = user.name || '—';
+  document.getElementById('profile-nim-big').textContent = user.nim || 'NIM belum diisi';
+  document.getElementById('profile-prodi-big').textContent = user.prodi || 'Prodi belum diisi';
+  document.getElementById('p-name').value = user.name;
+  document.getElementById('p-nim').value = user.nim;
+  document.getElementById('p-prodi').value = user.prodi;
+  // sync avatar grid
+  document.querySelectorAll('#profile-avatar-grid .avatar-opt').forEach(e => {
+    e.classList.toggle('selected', e.dataset.emoji === user.avatar);
+  });
+  selectedAvatar = user.avatar;
+  // stats
+  const done = tasks.filter(t => t.progress === 100).length;
+  const avg  = tasks.length ? Math.round(tasks.reduce((s,t)=>s+t.progress,0)/tasks.length) : 0;
+  document.getElementById('stat-total').textContent = tasks.length;
+  document.getElementById('stat-done').textContent  = done;
+  document.getElementById('stat-score').textContent = tasks.length ? (calcScore(tasks) + '/100') : '—';
+  document.getElementById('stat-avg').textContent   = tasks.length ? (avg + '%') : '—';
+}
+
+function logOut() {
+  if (!confirm('Keluar dan reset semua data sesi ini?')) return;
+  tasks = []; taskIdCtr = 0;
+  user = { name: '', nim: '', prodi: '', avatar: '🧑‍💻' };
+  selectedAvatar = '🧑‍💻';
+  // reset onboarding (register) form
+  document.getElementById('ob-name').value = '';
+  document.getElementById('ob-nim').value = '';
+  document.getElementById('ob-prodi').value = '';
+  document.getElementById('ob-step1').classList.add('active');
+  document.getElementById('ob-step2').classList.remove('active');
+  document.getElementById('sd2').classList.remove('done');
+  document.querySelectorAll('#avatar-grid .avatar-opt').forEach((e,i)=>e.classList.toggle('selected',i===0));
+  // hide app, show login
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('login-page').classList.remove('hidden');
+  showPage('dashboard');
+}
+
+// ===== MAP GRAPH =====
+const MAP_NODES = [
+  {id:'lab',    label:'Lab Informatika', x:240, y:60,  type:'start'},
+  {id:'perpus', label:'Perpustakaan',    x:175, y:100, type:'waypoint'},
+  {id:'gerbang',label:'Gerbang Undip',   x:240, y:160, type:'waypoint'},
+  {id:'pertigaan',label:'Pertigaan Jl.Soedarto', x:90, y:160, type:'waypoint'},
+  {id:'pasar',  label:'Pasar Tembalang', x:380, y:210, type:'safe'},
+  {id:'jl-terang',label:'Jl. Terang',   x:240, y:260, type:'safe'},
+  {id:'minimarket',label:'Minimarket 24j',x:380, y:300, type:'safe'},
+  {id:'jl-sepi',label:'Jl. Sepi',       x:90, y:260, type:'danger'},
+  {id:'gang-gelap',label:'Gang Gelap',   x:90, y:320, type:'danger'},
+  {id:'kos',    label:'Kos Tembalang',   x:80,  y:340, type:'end'},
+];
+const MAP_EDGES = [
+  {from:'lab',    to:'gerbang',   risk:2},
+  {from:'lab',    to:'perpus',    risk:1},
+  {from:'perpus', to:'gerbang',   risk:1},
+  {from:'gerbang',to:'pertigaan', risk:2},
+  {from:'gerbang',to:'jl-terang', risk:2},
+  {from:'gerbang',to:'pasar',     risk:2},
+  {from:'pasar',  to:'minimarket',risk:1},
+  {from:'minimarket',to:'kos',    risk:3},
+  {from:'jl-terang',to:'kos',     risk:3},
+  {from:'jl-terang',to:'minimarket',risk:2},
+  {from:'pertigaan',to:'jl-sepi', risk:7},
+  {from:'jl-sepi',to:'gang-gelap',risk:9},
+  {from:'gang-gelap',to:'kos',    risk:9},
+];
+const SAFE_PATH  = ['lab','gerbang','pasar','minimarket','kos'];
+const RISKY_PATH = ['lab','gerbang','pertigaan','jl-sepi','gang-gelap','kos'];
+
+// ===== PRIORITY ENGINE =====
+function getPriority(t) {
+  const now = new Date();
+  const dl = new Date(t.deadline);
+  const hrs = (dl - now) / 3600000;
+  if (hrs < 24 && t.progress < 30) return 'critical';
+  if (hrs < 48 || t.progress < 50) return 'important';
+  return 'normal';
+}
+
+// ===== ADD TASK =====
+function addTask() {
+  const name     = document.getElementById('f-name').value.trim();
+  const matkul   = document.getElementById('f-matkul').value.trim();
+  const deadline = document.getElementById('f-deadline').value;
+  const duration = parseFloat(document.getElementById('f-duration').value);
+  const progress = parseInt(document.getElementById('f-progress').value);
+  const desc     = document.getElementById('f-desc').value.trim();
+
+  if (!name || !deadline || !duration || isNaN(duration)) {
+    showToast('Nama tugas, deadline, dan estimasi waktu wajib diisi!', true);
+    return;
+  }
+  tasks.push({ id: ++taskIdCtr, name, matkul, deadline, duration, progress, desc });
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-matkul').value = '';
+  document.getElementById('f-deadline').value = '';
+  document.getElementById('f-duration').value = '';
+  document.getElementById('f-progress').value = 0;
+  document.getElementById('prog-display').textContent = '0%';
+  document.getElementById('prog-display2').textContent = '0%';
+  document.getElementById('f-desc').value = '';
+  renderAll();
+  showToast('Tugas berhasil ditambahkan!');
+  showPage('dashboard');
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  renderAll();
+  showToast('Tugas dihapus.');
+}
+
+function updateProgress(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  const v = prompt(`Update progres untuk "${t.name}" (0–100):`, t.progress);
+  if (v !== null) {
+    t.progress = Math.min(100, Math.max(0, parseInt(v) || 0));
+    renderAll();
+    showToast('Progres diperbarui!');
+  }
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  renderTaskList();
+  renderMetrics();
+  renderScore();
+  renderRisk();
+  renderBreakdownSelect();
+  renderWhatIf();
+  checkAlert();
+  renderETA();
+}
+
+// ===== TASK LIST =====
+function renderTaskList() {
+  const el = document.getElementById('task-list');
+  if (!tasks.length) {
+    el.innerHTML = `<div class="empty"><i class="fa-solid fa-inbox"></i><div class="empty-title">Belum ada tugas</div>Tambah tugas baru untuk mulai tracking.</div>`;
+    return;
+  }
+  const sorted = [...tasks].sort((a, b) => {
+    const order = { critical: 0, important: 1, normal: 2 };
+    return order[getPriority(a)] - order[getPriority(b)];
+  });
+  el.innerHTML = sorted.map(t => {
+    const p = getPriority(t);
+    const dl = new Date(t.deadline);
+    const now = new Date();
+    const hrs = Math.max(0, (dl - now) / 3600000);
+    const timeStr = hrs < 24 ? `${Math.round(hrs)}j lagi` : `${Math.round(hrs/24)}h lagi`;
+    const badgeMap = { critical: 'badge-critical', important: 'badge-important', normal: 'badge-normal' };
+    const labelMap = { critical: 'Critical', important: 'Important', normal: 'Normal' };
+    return `<div class="task-item ${p}">
+      <div class="task-header">
+        <div class="task-name">${escHtml(t.name)}</div>
+        <span class="badge ${badgeMap[p]}"><span class="badge-dot"></span> ${labelMap[p]}</span>
+      </div>
+      <div class="task-meta">
+        <span class="task-meta-chip"><i class="fa-solid fa-book" style="color:var(--accent-light)"></i> ${escHtml(t.matkul || '—')}</span>
+        <span class="task-meta-chip"><i class="fa-solid fa-calendar-day" style="color:var(--amber)"></i> ${dl.toLocaleDateString('id-ID',{day:'2-digit',month:'short'})} ${dl.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
+        <span class="task-meta-chip"><i class="fa-solid fa-hourglass-half" style="color:var(--green)"></i> ${timeStr}</span>
+        <span class="task-meta-chip"><i class="fa-solid fa-clock" style="color:var(--teal)"></i> ${t.duration}h est.</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-bar pb-${p}" style="width:${t.progress}%"></div>
+      </div>
+      <div class="progress-label">${t.progress}% selesai</div>
+      <div class="task-actions">
+        <button class="btn btn-sm" onclick="updateProgress(${t.id})"><i class="fa-solid fa-pen"></i> Update progres</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteTask(${t.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== METRICS =====
+function renderMetrics() {
+  if (!tasks.length) {
+    document.getElementById('m-total').textContent = '0';
+    document.getElementById('m-total-sub').textContent = 'Tidak ada tugas aktif';
+    document.getElementById('m-critical').textContent = '0';
+    document.getElementById('m-hours').textContent = '0h';
+    document.getElementById('m-avgprog').textContent = '—';
+    document.getElementById('m-eta').textContent = '—';
+    document.getElementById('m-eta-sub').textContent = 'Belum ada tugas';
+    return;
+  }
+  const critical = tasks.filter(t => getPriority(t) === 'critical').length;
+  const remHrs = tasks.reduce((s, t) => s + t.duration * (1 - t.progress / 100), 0);
+  const avgProg = Math.round(tasks.reduce((s, t) => s + t.progress, 0) / tasks.length);
+  const now = new Date();
+  const eta = new Date(now.getTime() + remHrs * 3600000);
+  const etaStr = `${eta.getHours().toString().padStart(2,'0')}:${eta.getMinutes().toString().padStart(2,'0')}`;
+
+  document.getElementById('m-total').textContent = tasks.length;
+  document.getElementById('m-total-sub').textContent = tasks.length + ' tugas aktif';
+  document.getElementById('m-critical').textContent = critical;
+  document.getElementById('m-hours').textContent = remHrs.toFixed(1) + 'h';
+  document.getElementById('m-avgprog').textContent = avgProg + '%';
+  document.getElementById('m-eta').textContent = etaStr;
+  document.getElementById('m-eta-sub').textContent = eta.getHours() >= 19 ? '⚠️ Lewat pukul 19.00' : 'Sebelum pukul 19.00';
+}
+
+// ===== ACADEMIC HEALTH SCORE =====
+function calcScore(taskList) {
+  if (!taskList.length) return null;
+  let score = 100;
+  const critical  = taskList.filter(t => getPriority(t) === 'critical').length;
+  const important = taskList.filter(t => getPriority(t) === 'important').length;
+  const avgProg   = taskList.reduce((s, t) => s + t.progress, 0) / taskList.length;
+  score -= critical * 18;
+  score -= important * 7;
+  score -= Math.max(0, (taskList.length - 3) * 4);
+  score += Math.round((avgProg - 50) * 0.3);
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function renderScore() {
+  const score = calcScore(tasks);
+  const arc = document.getElementById('score-arc');
+  if (score === null) {
+    arc.style.strokeDashoffset = '276.5';
+    document.getElementById('score-num').textContent = '—';
+    document.getElementById('score-title').textContent = 'Belum ada data';
+    document.getElementById('score-desc').textContent = 'Tambahkan tugas untuk menghitung skor.';
+    document.getElementById('score-grade').style.display = 'none';
+    return;
+  }
+  const offset = 276.5 * (1 - score / 100);
+  arc.style.strokeDashoffset = offset;
+  let color, title, desc, gradeClass, gradeText;
+  if (score >= 70) {
+    color = '#22C55E'; title = 'Kondisi akademik sehat'; gradeClass = 'good'; gradeText = '✅ Kondisi baik';
+    desc = 'Beban tugas masih terkendali. Pertahankan progres dan jangan menumpuk pekerjaan.';
+  } else if (score >= 40) {
+    color = '#F5A623'; title = 'Perlu perhatian ekstra'; gradeClass = 'warn'; gradeText = '⚠️ Perlu perhatian';
+    desc = 'Ada beberapa tugas yang perlu segera diselesaikan. Fokuskan pada yang Critical terlebih dahulu.';
+  } else {
+    color = '#F04E4E'; title = 'Beban akademik berat!'; gradeClass = 'danger'; gradeText = '🔴 Segera tangani';
+    desc = 'Banyak tugas menumpuk dengan deadline dekat. Risiko prokrastinasi dan burnout sangat tinggi!';
+  }
+  arc.style.stroke = color;
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('score-num').style.color = color;
+  document.getElementById('score-title').textContent = title;
+  document.getElementById('score-desc').textContent = desc;
+  const gradeEl = document.getElementById('score-grade');
+  gradeEl.className = `score-grade ${gradeClass}`;
+  gradeEl.textContent = gradeText;
+  gradeEl.style.display = 'inline-flex';
+}
+
+// ===== RISK BARS =====
+function renderRisk() {
+  const el = document.getElementById('risk-bars');
+  if (!tasks.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Belum ada data.</div>'; return; }
+  const critical = tasks.filter(t => getPriority(t) === 'critical').length;
+  const avgProg  = tasks.reduce((s, t) => s + t.progress, 0) / tasks.length;
+  const procrastRisk = Math.min(100, Math.round(critical / tasks.length * 60 + (100 - avgProg) * 0.4));
+  const totalHrs     = tasks.reduce((s, t) => s + t.duration, 0);
+  const burnoutRisk  = Math.min(100, Math.round(totalHrs / 40 * 100 * 0.65 + critical * 15));
+  const overallLoad  = Math.min(100, Math.round((tasks.length * 10 + totalHrs * 2 + critical * 20) / 3));
+
+  const rColor = v => v >= 70 ? 'var(--red)' : v >= 40 ? 'var(--amber)' : 'var(--green)';
+  const rLabel = v => v >= 70 ? 'Tinggi' : v >= 40 ? 'Sedang' : 'Rendah';
+  const bar = (lbl, v) => `<div class="risk-row">
+    <span class="risk-lbl">${lbl}</span>
+    <div class="risk-track"><div class="risk-fill" style="width:${v}%;background:${rColor(v)}"></div></div>
+    <span class="risk-val" style="color:${rColor(v)}">${rLabel(v)} (${v}%)</span>
+  </div>`;
+  el.innerHTML = bar('Risiko prokrastinasi', procrastRisk) + bar('Risiko burnout', burnoutRisk) + bar('Beban akademik', overallLoad);
+}
+
+// ===== BREAKDOWN SELECT =====
+function renderBreakdownSelect() {
+  const sel = document.getElementById('breakdown-select');
+  sel.innerHTML = '<option value="">— Pilih tugas —</option>' +
+    tasks.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+}
+
+// ===== TASK BREAKDOWN AI (in-artifact, no external API) =====
+async function generateBreakdown() {
+  const id = parseInt(document.getElementById('breakdown-select').value);
+  if (!id) { showToast('Pilih tugas dulu!', true); return; }
+  const t = tasks.find(x => x.id === id);
+  const res = document.getElementById('breakdown-result');
+  res.innerHTML = `<div class="ai-output"><div class="loading-ai"><div class="spinner"></div> AI sedang membuat action plan...</div></div>`;
+
+  // Simulate async AI processing
+  await new Promise(r => setTimeout(r, 900));
+
+  const priority = getPriority(t);
+  const remPct = 100 - t.progress;
+  const matkul = t.matkul || 'Umum';
+
+  // Rule-based step generator sesuai konteks tugas
+  const baseSteps = [
+    { step: 1, action: `Baca ulang instruksi dan buat outline untuk "${t.name}"`, duration_minutes: Math.round(t.duration * 60 * 0.1), notes: 'Pahami scope tugas sebelum mulai coding/menulis' },
+    { step: 2, action: `Setup environment dan kumpulkan referensi materi ${matkul}`, duration_minutes: Math.round(t.duration * 60 * 0.15), notes: 'Siapkan IDE, modul, atau paper yang dibutuhkan' },
+    { step: 3, action: `Kerjakan bagian inti tugas — fokus ${remPct > 60 ? 'dari awal' : 'melanjutkan progres saat ini'}`, duration_minutes: Math.round(t.duration * 60 * 0.40), notes: priority === 'critical' ? '⚠️ Prioritas tinggi, hindari distraksi!' : 'Kerjakan per blok 25 menit (Pomodoro)' },
+    { step: 4, action: `Review dan uji hasil: cek logika, typo, atau error pada ${t.name}`, duration_minutes: Math.round(t.duration * 60 * 0.20), notes: 'Test semua skenario, baca ulang laporan jika tugas tulis' },
+    { step: 5, action: `Finalisasi dan format sesuai ketentuan ${matkul}`, duration_minutes: Math.round(t.duration * 60 * 0.10), notes: 'Cek format pengumpulan, nama file, atau template laporan' },
+    { step: 6, action: `Submit dan catat bukti pengumpulan`, duration_minutes: 5, notes: 'Screenshot konfirmasi submit, simpan di folder tugas' },
+  ];
+
+  res.innerHTML = `<div class="ai-output">
+    <div style="font-size:11px;color:var(--accent-light);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:5px">
+      <i class="fa-solid fa-sparkles"></i> Action plan untuk "${escHtml(t.name)}" · Est. ${t.duration}j · ${remPct}% tersisa
+    </div>
+    <ul class="steps-list">${baseSteps.map(s => `
+      <li class="step-row">
+        <div class="step-num">${s.step}</div>
+        <div class="step-body">
+          <div class="step-action">${escHtml(s.action)}</div>
+          <div class="step-dur"><i class="fa-solid fa-clock"></i> ~${s.duration_minutes} menit · ${escHtml(s.notes)}</div>
+        </div>
+      </li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+// ===== WHAT-IF SIMULATION =====
+function renderWhatIf() {
+  const wrap = document.getElementById('whatif-wrap');
+  const desc = document.getElementById('whatif-desc');
+  if (!tasks.length) { wrap.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Belum ada data tugas.</div>'; desc.innerHTML = ''; return; }
+
+  const s0 = calcScore(tasks);
+  const simTasks = (plusDays) => tasks.map(t => {
+    const newDl = new Date(new Date(t.deadline).getTime() - plusDays * 86400000).toISOString();
+    return { ...t, deadline: newDl };
+  });
+  const scenarios = [
+    { label: 'Sekarang', score: s0, color: '#22C55E' },
+    { label: '+1 hari',  score: Math.max(0, calcScore(simTasks(1))), color: '#F5A623' },
+    { label: '+2 hari',  score: Math.max(0, calcScore(simTasks(2))), color: '#E8593C' },
+    { label: '+3 hari',  score: Math.max(0, calcScore(simTasks(3))), color: '#F04E4E' },
+  ];
+  const maxS = Math.max(...scenarios.map(s => s.score), 1);
+  wrap.innerHTML = `<div class="whatif-bars">${scenarios.map(s => `
+    <div class="wbar-wrap">
+      <div class="wbar" style="background:${s.color};height:${Math.round(s.score/maxS*80)+6}px">
+        <span class="wbar-num">${s.score}</span>
+      </div>
+      <div class="wbar-lbl">${s.label}</div>
+    </div>`).join('')}
+  </div>`;
+  const drop = s0 - scenarios[3].score;
+  desc.innerHTML = drop > 0
+    ? `<i class="fa-solid fa-triangle-exclamation" style="color:var(--amber)"></i> Jika ditunda 3 hari, skor bisa turun <strong style="color:var(--red)">${drop} poin</strong> menjadi ${scenarios[3].score}. Segera kerjakan sekarang!`
+    : '';
+}
+
+// ===== CHECK ALERT =====
+function checkAlert() {
+  if (!tasks.length) { document.getElementById('alert-bar').classList.remove('show'); return; }
+  const now = new Date();
+  const remHrs = tasks.filter(t => getPriority(t) !== 'normal').reduce((s, t) => s + t.duration * (1 - t.progress / 100), 0);
+  const eta = new Date(now.getTime() + remHrs * 3600000);
+  const bar = document.getElementById('alert-bar');
+  if (eta.getHours() >= 19 || (eta.getHours() < 5 && remHrs > 0)) {
+    const etaStr = `${eta.getHours().toString().padStart(2,'0')}:${eta.getMinutes().toString().padStart(2,'0')}`;
+    document.getElementById('alert-msg').textContent = `⚠️ Time-Based Alert: estimasi selesai pukul ${etaStr} — melewati pukul 19.00. Night Route Safety diaktifkan!`;
+    bar.classList.add('show');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+// ===== ETA (Safety page) =====
+function renderETA() {
+  if (!tasks.length) {
+    document.getElementById('eta-big').textContent = '—:—';
+    document.getElementById('eta-big').style.color = 'var(--text-1)';
+    document.getElementById('eta-big-label').textContent = 'Tambahkan tugas untuk estimasi';
+    return;
+  }
+  const now = new Date();
+  const remHrs = tasks.filter(t => getPriority(t) !== 'normal').reduce((s, t) => s + t.duration * (1 - t.progress / 100), 0);
+  const eta = new Date(now.getTime() + remHrs * 3600000);
+  const etaStr = `${eta.getHours().toString().padStart(2,'0')}:${eta.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('eta-big').textContent = etaStr;
+  if (eta.getHours() >= 19) {
+    document.getElementById('eta-big').style.color = 'var(--red)';
+    document.getElementById('eta-big-label').textContent = '⚠️ Diprediksi pulang malam — aktifkan rute aman!';
+  } else {
+    document.getElementById('eta-big').style.color = 'var(--green)';
+    document.getElementById('eta-big-label').textContent = '✅ Estimasi selesai sebelum pukul 19.00';
+  }
+}
+
+// ===== MAP =====
+function getNode(id) { return MAP_NODES.find(n => n.id === id); }
+
+function drawMapNodes() {
+  const layer = document.getElementById('map-nodes-layer');
+  const wrap  = document.getElementById('map-wrap');
+  const W = 480, H = 380;
+  layer.innerHTML = '';
+  const colMap = { start: 'var(--accent)', end: 'var(--blue)', safe: 'var(--green)', danger: 'var(--red)', waypoint: '#9095B0' };
+  const sizeMap = { start: 16, end: 16, safe: 11, danger: 11, waypoint: 10 };
+  MAP_NODES.forEach(n => {
+    const pxX = (n.x / W * 100);
+    const pxY = (n.y / H * 100);
+    const dot = document.createElement('div');
+    dot.className = 'map-node';
+    dot.style.left = pxX + '%';
+    dot.style.top  = pxY + '%';
+    dot.style.width = sizeMap[n.type] + 'px';
+    dot.style.height = sizeMap[n.type] + 'px';
+    dot.style.background = colMap[n.type] || '#9095B0';
+    dot.style.boxShadow = `0 0 8px ${colMap[n.type]}88`;
+    dot.title = n.label;
+    layer.appendChild(dot);
+    const lbl = document.createElement('div');
+    lbl.className = 'map-node-label';
+    lbl.textContent = n.label;
+    lbl.style.left = `calc(${pxX}% + 9px)`;
+    lbl.style.top  = `calc(${pxY}% - 7px)`;
+    layer.appendChild(lbl);
+  });
+}
+
+function drawEdge(svg, fromId, toId, color, dashed = false, width = 2.5) {
+  const a = getNode(fromId), b = getNode(toId);
+  if (!a || !b) return;
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+  line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+  line.setAttribute('stroke', color);
+  line.setAttribute('stroke-width', width);
+  line.setAttribute('stroke-linecap', 'round');
+  line.setAttribute('opacity', '0.85');
+  if (dashed) line.setAttribute('stroke-dasharray', '6 4');
+  svg.appendChild(line);
+}
+
+function drawAllEdges() {
+  drawMapNodes();
+  const svg = document.getElementById('route-svg');
+  svg.innerHTML = svg.innerHTML.replace(/<line[^>]*>/g,'');
+  MAP_EDGES.forEach(e => {
+    const col = e.risk <= 3 ? 'rgba(34,197,94,0.4)' : e.risk <= 6 ? 'rgba(245,166,35,0.4)' : 'rgba(240,78,78,0.35)';
+    drawEdge(svg, e.from, e.to, col, false, 1.5);
+  });
+}
+
+function calcRoute() {
+  const departTimeVal = document.getElementById('f-depart-time') ? document.getElementById('f-depart-time').value : '19:00';
+  const [dHour, dMin] = departTimeVal.split(':').map(Number);
+  const isNight = dHour >= 19 || dHour < 5;
+  const originEl = document.getElementById('f-origin');
+  const destEl = document.getElementById('f-dest');
+  const originLabel = escHtml((originEl && originEl.value.trim()) ? originEl.value.trim() : 'Lab Informatika FSM');
+  const destLabel = escHtml((destEl && destEl.value.trim()) ? destEl.value.trim() : 'Kos Tembalang Selatan');
+
+  // Reflect user's typed origin/destination on the map markers (truncate long names)
+  const truncate = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+  const startNode = getNode('lab');
+  const endNode = getNode('kos');
+  if (startNode) startNode.label = truncate(originLabel, 18);
+  if (endNode) endNode.label = truncate(destLabel, 18);
+
+  drawMapNodes();
+  const svg = document.getElementById('route-svg');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  // Draw all edges dimmed
+  MAP_EDGES.forEach(e => drawEdge(svg, e.from, e.to, 'rgba(255,255,255,0.07)', false, 1));
+  // Draw risky path (red dashed)
+  for (let i = 0; i < RISKY_PATH.length - 1; i++)
+    drawEdge(svg, RISKY_PATH[i], RISKY_PATH[i+1], '#F04E4E', true, 2);
+  // Draw safe path (green solid, thicker)
+  for (let i = 0; i < SAFE_PATH.length - 1; i++)
+    drawEdge(svg, SAFE_PATH[i], SAFE_PATH[i+1], '#22C55E', false, 3.5);
+
+  const timeStr = `${String(dHour).padStart(2,'0')}:${String(dMin).padStart(2,'0')}`;
+  const segments = [
+    { name: `${originLabel} → Gerbang Undip`, type: 'safe', score: 95, note: 'Jalan kampus, terang, ada satpam' },
+    { name: 'Gerbang Undip → Pasar Tembalang', type: 'safe', score: 88, note: 'Jalan utama, ramai pedagang' },
+    { name: 'Pasar → Minimarket 24 Jam', type: 'safe', score: 92, note: 'Terang, banyak kendaraan' },
+    { name: `Minimarket → ${destLabel}`, type: isNight ? 'warn' : 'safe', score: isNight ? 75 : 88, note: isNight ? 'Malam hari — perhatikan sekitar, aktifkan share location' : 'Kondisi siang/sore hari, aman' },
+  ];
+  const colMap = { safe: 'var(--green)', warn: 'var(--amber)', danger: 'var(--red)' };
+  const nightWarning = isNight
+    ? `<div style="background:var(--amber-bg);border:1px solid rgba(245,166,35,0.3);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--amber)">
+        <strong>⚠️ Pulang malam pukul ${timeStr}</strong> — Mode Night Route aktif. Gunakan jalur terang dan ramai.
+       </div>`
+    : `<div style="background:var(--green-bg);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--green)">
+        <strong>✅ Jam pulang ${timeStr} — kondisi aman</strong> — Masih dalam jam terang, risiko rendah.
+       </div>`;
+  document.getElementById('route-detail').innerHTML = `
+    ${nightWarning}
+    <div style="background:var(--green-bg);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--green)">
+      <strong>✅ Rute aman direkomendasikan</strong> — Total skor keamanan: <strong>92/100</strong> · ~2.1 km · Estimasi 22 menit jalan kaki
+    </div>
+    <div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--text-2)">DETAIL SEGMEN: ${originLabel} → ${destLabel}</div>
+    ${segments.map(s => `<div class="route-segment">
+      <div class="route-dot" style="background:${colMap[s.type]}"></div>
+      <div class="route-name">${s.name}</div>
+      <div class="route-score" style="color:${colMap[s.type]}">${s.score}/100</div>
+    </div>
+    <div style="font-size:11px;color:var(--text-3);padding-left:17px;margin-bottom:6px">${s.note}</div>`).join('')}
+    <div style="margin-top:10px;background:var(--red-bg);border:1px solid rgba(240,78,78,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--red)">
+      <strong>✗ Rute via Jl. Sepi & Gang Gelap dihindari</strong> — Skor keamanan: 21/100 · Minim penerangan, sepi, riwayat kriminalitas
+    </div>`;
+}
+
+// ===== PAGE ROUTER =====
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + p);
+  if (pageEl) pageEl.classList.add('active');
+  const map = { dashboard: 0, input: 1, safety: 2 };
+  if (map[p] !== undefined) document.querySelectorAll('.nav-btn')[map[p]].classList.add('active');
+  if (p === 'safety') { drawMapNodes(); renderETA(); }
+  if (p === 'profile') { updateProfilePage(); }
+}
+
+// ===== TOAST =====
+function showToast(msg, isErr = false) {
+  const el = document.getElementById('toast');
+  el.style.color = isErr ? 'var(--red)' : 'var(--green)';
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ===== UTILS =====
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// sync range display
+document.getElementById('f-progress').addEventListener('input', function() {
+  document.getElementById('prog-display').textContent = this.value + '%';
+  document.getElementById('prog-display2').textContent = this.value + '%';
+});
+
+// ===== SEED DATA (loaded after onboarding for demo) =====
+function loadSeedData() {
+  const now = new Date();
+  const dl1 = new Date(now.getTime() + 20  * 3600000).toISOString().slice(0,16);
+  const dl2 = new Date(now.getTime() + 50  * 3600000).toISOString().slice(0,16);
+  const dl3 = new Date(now.getTime() + 100 * 3600000).toISOString().slice(0,16);
+  tasks = [
+    { id: ++taskIdCtr, name: 'Laporan Praktikum Jarkom', matkul: 'Jaringan Komputer', deadline: dl1, duration: 4, progress: 20, desc: 'Konfigurasi Packet Tracer dua kantor Semarang-Tokyo dengan RIP routing, DHCP, DNS' },
+    { id: ++taskIdCtr, name: 'Tugas Besar PBO', matkul: 'Pemrograman Berorientasi Objek', deadline: dl2, duration: 8, progress: 55, desc: 'Sistem kasir elektronik Java Swing dengan inheritance, abstract class, dan multi-role login' },
+    { id: ++taskIdCtr, name: 'Paper Analisis Algoritma', matkul: 'Analisis dan Strategi Algoritma', deadline: dl3, duration: 6, progress: 70, desc: 'IEEE paper membandingkan Brute Force, Greedy, dan Monte Carlo' },
+  ];
+}
+</script>
+</body>
+</html>
